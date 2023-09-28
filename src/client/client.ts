@@ -16,8 +16,8 @@ let deltaTime: number
 let letters: Model[] = []
 let font: Font
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.z = -5
-camera.position.y = 3
+camera.position.z = -2
+camera.position.y = 1.5
 const renderer = new THREE.WebGLRenderer()
 renderer.setClearColor(0x000000)
 renderer.setPixelRatio(devicePixelRatio)
@@ -113,6 +113,9 @@ function animate() {
         playerModel.velocity.Y = 0.15
     }
     frame++
+
+    requestAnimationFrame(animate)
+    deltaTime = clock.getDelta()
     if (frame % 30 == 0) {
         makeFont(String.fromCharCode(parseInt(Math.random() * 26 + 65 + '')), {
             X: (Math.random() - 0.5) * 5,
@@ -120,9 +123,6 @@ function animate() {
             Z: 30,
         })
     }
-    requestAnimationFrame(animate)
-    deltaTime = clock.getDelta()
-    // velocitySettelment(playerModel, deltaTime)
     playerModel.update()
     if (mixer) {
         mixer.update(deltaTime)
@@ -153,12 +153,13 @@ async function model(modelName: String, modelScale: { X: number; Y: number; Z: n
     scene.add(playerModel)
     animate()
 }
-function velocitySettelment(playerModel: Model, deltaTime: number) {
-    playerModel.velocity = {
-        X: playerModel.velocity.X * deltaTime,
-        Y: playerModel.velocity.Y * deltaTime,
-        Z: playerModel.velocity.Z * deltaTime,
-    }
+function velocitySettelment(deltaTime: number) {
+    letters.forEach((model: Model) => {
+        model.velocity.X = model.velocity.X * deltaTime
+        model.velocity.X = model.velocity.Y * deltaTime
+        model.velocity.Z = model.velocity.Z * deltaTime
+        console.log(model.velocity)
+    })
 }
 function render() {
     renderer.render(scene, camera)
@@ -167,7 +168,6 @@ function render() {
 model('boy', { X: 0.4, Y: 0.4, Z: 0.4 })
 loadText().then((txt) => {
     font = txt
-    makeFont('H')
 })
 
 function makeFont(
@@ -188,7 +188,7 @@ function makeFont(
             0.4,
             0.4,
             true,
-            { X: 0, Y: 0, Z: -0.5 },
+            { X: 0, Y: 0, Z: -20 * deltaTime },
             { ...position }
         )
         model.rotateY(-Math.PI)
